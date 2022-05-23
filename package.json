@@ -1,0 +1,7 @@
+{
+  "name": "test_project",
+  "version": "1.0.0",
+  "dependencies": {
+    "three": "^0.138.3"
+  }
+}

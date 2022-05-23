@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    <title>ThreeJS Demo</title>
+{% endblock title %}
+
+{% block content %}
+    <nav class="bg-blue border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-800">
+        <div class="container flex flex-wrap justify-between items-center mx-auto">
+            <a href="/" class="flex items-center">
+                <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Test Project</span>
+            </a>
+            <button data-collapse-toggle="mobile-menu" type="button" class="inline-flex items-center p-2 ml-3 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="mobile-menu-2" aria-expanded="false">
+                <span class="sr-only">Open main menu</span>
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+            <div class="hidden w-full md:block md:w-auto" id="mobile-menu">
+                <ul class="flex flex-col mt-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium">
+                    <li>
+                        <a href="/" class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Home</a>
+                    </li>
+                    <li>
+                        <a href="/threeJS" class="block py-2 pr-4 pl-3 text-white bg-indigo-700 rounded md:bg-transparent md:text-indigo-700 md:p-0 dark:text-white" aria-current="page">Three.JS Demo</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="text-gray-600 body-font">
+        <div class="container px-5 py-20 mx-auto">
+            <div class="flex flex-col text-center w-full mb-10">
+                <h1 class="sm:text-3xl text-2xl font-medium title-font mb-4 text-gray-900">Three.JS Demo</h1>
+            </div>
+
+            <div class="flex flex-col text-left w-full">
+                <h2 class="text-xl font-medium title-font mb-4 text-gray-900">Box snap to cube:</h2>
+            </div>
+            <div id="canvas" class="flex flex-col text-center w-12/12 mb-20">
+                <script>
+                    // Instantiate scene, camera, renderer
+                    const scene = new THREE.Scene();
+                    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight); // Use window dimension as placeholder
+                    const renderer = new THREE.WebGLRenderer({antialias: true});
+                    renderer.shadowMap.enabled = true;
+                    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+
+                    // Define orbit controls
+                    const orbit = new THREE.OrbitControls(camera, renderer.domElement);
+                    orbit.enableDamping = true;
+                    orbit.screenSpacePanning = false;
+                    orbit.minDistance = 15;
+                    orbit.maxDistance = 60;
+                    orbit.maxPolarAngle = Math.PI * 0.6;
+                    orbit.target = new THREE.Vector3(0, 10, 0); // Set camera target
+                    orbit.update();
+
+                    // Define transform controls
+                    transform = new THREE.TransformControls(camera, renderer.domElement);
+                    transform.addEventListener('change', render);
+                    transform.addEventListener('dragging-changed', function (event) {
+                        orbit.enabled = !event.value;
+                    } );
+
+                    // Add spotlights
+                    const spot1 = new THREE.SpotLight(0x404040, 5, 100);
+                    spot1.position.set(15, 40, 15);
+                    spot1.castShadow = true; // default false
+                    scene.add(spot1);
+
+                    // Add ambient light
+                    const ambient = new THREE.AmbientLight(0x404040, 3); // soft white light
+                    scene.add(ambient);
+
+                    // Custom container for canvas
+                    const container = document.getElementById('canvas');
+
+                    // Render inside the div
+                    container.appendChild(renderer.domElement);
+
+                    // Change camera angle
+                    camera.position.set(20, 20, -20); // Set position
+                    camera.up = new THREE.Vector3(0,1,0);
+
+                    // Create cube object
+                    function createCube() {
+                        const geometry_cube = new THREE.BoxGeometry(10, 10, 10);
+                        const material_cube = [
+                            new THREE.MeshStandardMaterial({color: 0xaaa9ad}),
+                            new THREE.MeshStandardMaterial({color: 0xaaa9ad}),
+                            new THREE.MeshStandardMaterial({color: 0xaaa9ad}),
+                            new THREE.MeshStandardMaterial({color: 0xaaa9ad}),
+                            new THREE.MeshStandardMaterial({color: 0xaaa9ad}),
+                            new THREE.MeshStandardMaterial({color: 0xaaa9ad})
+                        ]
+                        const cube = new THREE.Mesh(geometry_cube, material_cube);
+                        cube.position.set(0, 10, 0);
+                        cube.rotation.set(0, 0, 0);
+                        cube.castShadow = true;
+                        cube.receiveShadow = false;
+
+                        // Add cube as spotlight target
+                        spot1.target = cube;
+
+                        scene.add(cube);
+
+                        cube.userData.name = 'CUBE';
+
+                        return cube
+                    }
+
+                    // Create small box object for moving
+                    function createBox() {
+                        const geometry_box = new THREE.BoxGeometry(1, 10, 10);
+                        const vertices_box = [];
+                        vertices_box.push(new THREE.Vector3(0, 0, 0));
+                        vertices_box.push(new THREE.Vector3(0, 0, 10));
+                        vertices_box.push(new THREE.Vector3(0, 10, 0));
+                        vertices_box.push(new THREE.Vector3(0, 10, 10));
+                        vertices_box.push(new THREE.Vector3(1, 0, 0));
+                        vertices_box.push(new THREE.Vector3(1, 0, 10));
+                        vertices_box.push(new THREE.Vector3(1, 10, 0));
+                        vertices_box.push(new THREE.Vector3(1, 10, 10));
+                        const material_box = [
+                            new THREE.MeshStandardMaterial({color: 0x00a000}),
+                            new THREE.MeshStandardMaterial({color: 0x00a000}),
+                            new THREE.MeshStandardMaterial({color: 0x00a000}),
+                            new THREE.MeshStandardMaterial({color: 0x00a000}),
+                            new THREE.MeshStandardMaterial({color: 0x00a000}),
+                            new THREE.MeshStandardMaterial({color: 0x00a000})
+                        ]
+                        const box = new THREE.Mesh(geometry_box, material_box);
+                        box.position.set(-10, 10, -15);
+                        box.rotation.set(0, 0, 0);
+                        box.castShadow = true;
+                        box.receiveShadow = false;
+                        scene.add(box);
+
+                        box.userData.draggable = true;
+                        box.userData.name = 'BOX';
+
+                        // Give box transform control
+                        transform.attach(box);
+                        scene.add(transform);
+
+                        // Return box object
+                        return box
+                    }
+
+                    // Create floor object
+                    function createFloor() {
+                        const geometry_floor = new THREE.PlaneGeometry(100, 100);
+                        const material_floor = new THREE.MeshStandardMaterial({color: 0x888888});
+                        const floor = new THREE.Mesh(geometry_floor, material_floor);
+                        floor.position.set(0, 0, 0);
+                        floor.rotation.set(Math.PI / 2, Math.PI, 0);
+                        floor.receiveShadow = true;
+                        scene.add(floor);
+
+                        floor.userData.ground = true;
+                    }
+
+                    {#scene.fog = new THREE.Fog(THREE.Color(0xffffff), 0.25, 4);#}
+
+                    // Grid, shadow helper
+                    scene.add(new THREE.GridHelper(100, 100, 0xffffff, 0x000000));
+
+                    box = createBox();
+                    cube = createCube();
+                    createFloor();
+
+                    // Render the scene
+                    render();
+
+                    function onWindowResize(){
+                        camera.aspect = container.clientWidth / container.clientHeight;
+                        camera.updateProjectionMatrix();
+
+                        renderer.setSize(container.clientWidth, container.clientHeight);
+                    }
+
+                    // Create animation frame
+                    function animate() {
+                        // Resize canvas dimension upon resize/start
+                        onWindowResize();
+
+                        renderer.render(scene,camera);
+
+                        // Update camera angle
+                        orbit.update();
+
+                        box.updateMatrixWorld();
+                        cube.updateMatrixWorld();
+
+                        // Calculate distance between vertices of objects
+                        box_vector = new THREE.Vector3();
+                        cube_vector = new THREE.Vector3();
+
+                        box_vector.fromBufferAttribute(box.geometry.attributes.position, 0).applyMatrix4(box.matrixWorld);
+                        cube_vector.fromBufferAttribute(cube.geometry.attributes.position, 5).applyMatrix4(cube.matrixWorld);
+
+                        if (box_vector.distanceTo(cube_vector) <= 5) {
+                            box.translateX(cube_vector.x - box_vector.x);
+                            box.translateY(cube_vector.y - box_vector.y);
+                            box.translateZ(cube_vector.z - box_vector.z);
+                        }
+
+                        // Self call for next frame
+                        requestAnimationFrame(animate);
+                    }
+                    requestAnimationFrame(animate);
+
+                    function render() {
+                        renderer.render(scene,camera);
+                    }
+                </script>
+            </div>
+
+        </div>
+    </section>
+
+{% endblock content %}
